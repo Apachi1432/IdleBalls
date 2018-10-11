@@ -3,11 +3,11 @@
 
     End Sub
 
-    Private Sub IdleBallsGame1_Load(sender As Object, e As EventArgs) Handles IdleBallsArena1.Load
-        IdleBallsArena1.StartNewGame()
+    Private Sub Button1_Click(sender As Object, e As EventArgs) Handles Button1.Click
+        IdleBallsGame1.StartNewGame()
     End Sub
 
-    Private Sub IdleBallsGame1_MouseDown(sender As Object, e As MouseEventArgs) Handles IdleBallsArena1.MouseDown
-'Test
+    Private Sub IdleBallsGame1_HandleCreated(sender As Object, e As EventArgs) Handles IdleBallsGame1.HandleCreated
+        IdleBallsGame1.StartNewGame()
     End Sub
 End Class

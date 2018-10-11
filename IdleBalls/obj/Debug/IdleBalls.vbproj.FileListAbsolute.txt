@@ -11,3 +11,4 @@ C:\Users\Joshua\AppData\Local\Temporary Projects\IdleBalls\obj\Debug\IdleBalls.e
 C:\Users\Joshua\AppData\Local\Temporary Projects\IdleBalls\obj\Debug\IdleBalls.xml
 C:\Users\Joshua\AppData\Local\Temporary Projects\IdleBalls\obj\Debug\IdleBalls.pdb
 C:\Users\Joshua\AppData\Local\Temporary Projects\IdleBalls\obj\Debug\IdleBalls.IdleBallsArena.resources
+C:\Users\Joshua\AppData\Local\Temporary Projects\IdleBalls\obj\Debug\IdleBalls.IdleBallsGame.resources

@@ -22,30 +22,38 @@ Partial Class Form1
     'Do not modify it using the code editor.
     <System.Diagnostics.DebuggerStepThrough()>
     Private Sub InitializeComponent()
-        Me.IdleBallsArena1 = New IdleBalls.IdleBallsArena()
+        Me.Button1 = New System.Windows.Forms.Button()
+        Me.IdleBallsGame1 = New IdleBalls.IdleBallsGame()
         Me.SuspendLayout()
         '
-        'IdleBallsArena1
+        'Button1
         '
-        Me.IdleBallsArena1.Anchor = CType((((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Bottom) _
-            Or System.Windows.Forms.AnchorStyles.Left) _
-            Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
-        Me.IdleBallsArena1.Location = New System.Drawing.Point(13, 13)
-        Me.IdleBallsArena1.Name = "IdleBallsArena1"
-        Me.IdleBallsArena1.Size = New System.Drawing.Size(500, 500)
-        Me.IdleBallsArena1.TabIndex = 0
+        Me.Button1.Location = New System.Drawing.Point(12, 618)
+        Me.Button1.Name = "Button1"
+        Me.Button1.Size = New System.Drawing.Size(75, 23)
+        Me.Button1.TabIndex = 2
+        Me.Button1.Text = "Start"
+        Me.Button1.UseVisualStyleBackColor = True
+        '
+        'IdleBallsGame1
+        '
+        Me.IdleBallsGame1.Location = New System.Drawing.Point(12, 12)
+        Me.IdleBallsGame1.Name = "IdleBallsGame1"
+        Me.IdleBallsGame1.Size = New System.Drawing.Size(500, 600)
+        Me.IdleBallsGame1.TabIndex = 1
         '
         'Form1
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
-        Me.ClientSize = New System.Drawing.Size(524, 524)
-        Me.Controls.Add(Me.IdleBallsArena1)
+        Me.ClientSize = New System.Drawing.Size(524, 655)
+        Me.Controls.Add(Me.Button1)
+        Me.Controls.Add(Me.IdleBallsGame1)
         Me.Name = "Form1"
         Me.Text = "Form1"
         Me.ResumeLayout(False)
 
     End Sub
-
-    Friend WithEvents IdleBallsArena1 As IdleBallsArena
+    Friend WithEvents IdleBallsGame1 As IdleBallsGame
+    Friend WithEvents Button1 As Button
 End Class

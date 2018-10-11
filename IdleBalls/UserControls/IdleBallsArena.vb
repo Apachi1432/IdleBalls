@@ -4,127 +4,23 @@ Public Class IdleBallsArena
     Inherits UserControl
 
 #Region "Private Variables, etc"
-    Private WithEvents TRender As New Timer With {.Enabled = True, .Interval = 10}
-
-    Private Class Orb
-        Public ReadOnly Property MaxValue As Integer = 100
-        Public ReadOnly Property HitValue As Integer = 0
-
-        Public Shared ReadOnly Property Radius As Integer = 32
-        Public Shared ReadOnly Property RequiredPadding As Integer = 10
-        Public ReadOnly Property CenterLocation As New Point(0, 0)
-
-        Public Sub New(ByVal Value As Integer, ByVal Location As Point)
-            _MaxValue = Value
-            _CenterLocation = Location
-        End Sub
-
-        Public ReadOnly Property Value As Integer
-            Get
-                If HitValue >= MaxValue Then Return 0
-                If HitValue <= 0 Then Return MaxValue
-
-                Return MaxValue - HitValue
-            End Get
-        End Property
-        Public ReadOnly Property Color As Color
-            Get
-                Dim Percentage As Double = HitValue / MaxValue
-
-                If Percentage >= 1 Then Percentage = 1
-                If Percentage <= 0 Then Percentage = 0
-
-                Return HSVToRGB(200 * Percentage, 1, 1)
-            End Get
-        End Property
-        Public Sub Hit(ByVal Value As Integer)
-            _HitValue += Value
-        End Sub
-    End Class
-    Private Class Ball
-        Private _Upgrades As Integer = 1
-        Private _Weight As Integer = 1
-
-        Public Shared ReadOnly Property Radius As Integer = 10
-        Public ReadOnly Property CenterLocation As New Point(10, 10)
-        Public ReadOnly Property Velocity As New PointF(4, 4)
-
-        Public ReadOnly Property Color As Color = Color.White
-
-        Public Sub New(ByVal Weight As Integer, ByVal Location As Point)
-            _Weight = Weight
-            _CenterLocation = Location
-            _Upgrades = 1
-        End Sub
-
-        Public ReadOnly Property Weight As Integer
-            Get
-                Return _Weight ^ _Upgrades
-            End Get
-        End Property
-        Public Sub Upgrade()
-            _Upgrades += 1
-        End Sub
-        Public Sub Move(ByVal s As Size)
-            _CenterLocation = New Point(CenterLocation.X + Velocity.X, CenterLocation.Y + Velocity.Y)
-
-            If CenterLocation.X + Velocity.X > s.Width - Radius OrElse CenterLocation.X + Velocity.X < Radius Then
-                _Velocity = New Point(-Velocity.X, Velocity.Y)
-            End If
-
-            If CenterLocation.Y + Velocity.Y > s.Height - Radius OrElse CenterLocation.Y + Velocity.Y < Radius Then
-                _Velocity = New Point(Velocity.X, -Velocity.Y)
-            End If
-        End Sub
-        Public Sub CheckCollisions(ByRef _orbs As List(Of Orb))
-            Dim MinDistance As Integer = Radius + Orb.Radius
-
-            For Each o As Orb In _orbs.ToList
-                If FindCircleCircleIntersections(o.CenterLocation, Orb.Radius, CenterLocation, Radius) Then
-                    Dim distance As Integer = Math.Sqrt((Math.Abs(o.CenterLocation.X - CenterLocation.X) ^ 2) + (Math.Abs(o.CenterLocation.Y - CenterLocation.Y) ^ 2))
-                    Dim angle As Double = Math.Atan2(o.CenterLocation.Y - CenterLocation.Y, o.CenterLocation.X - CenterLocation.X)
-                    Dim spread As Integer = MinDistance - distance
-
-                    Dim ax As Double = spread * Math.Cos(angle)
-                    Dim ay As Double = spread * Math.Sin(angle)
-
-                    ' solve collision (separation)
-                    '_CenterLocation = New Point(CenterLocation.X - ax, CenterLocation.Y - ay)
-
-                    Dim dx As Single = o.CenterLocation.X - CenterLocation.X
-                    Dim dy As Single = o.CenterLocation.Y - CenterLocation.Y
-
-                    Dim length As Single = Math.Sqrt(dx * dx + dy * dy)
-
-                    dx /= length
-                    dy /= length
-
-                    dx *= Velocity.X
-                    dy *= Velocity.Y
-
-                    _CenterLocation = New Point(CenterLocation.X + dx, CenterLocation.Y + dy)
-
-                    'Dim normalized As PointF = Normalize(New PointF(o.CenterLocation.X - CenterLocation.X, o.CenterLocation.Y - CenterLocation.Y))
-                    '_Velocity = New PointF(
-                    '    (Velocity.X - (2 * (normalized.X * Velocity.X + normalized.Y * Velocity.Y)) * normalized.X),
-                    '    (Velocity.Y - (2 * (normalized.X * Velocity.X + normalized.Y * Velocity.Y)) * normalized.Y)
-                    ')
-
-                    o.Hit(Weight)
-                    If o.Value = 0 Then
-                        _orbs.Remove(o)
-                    End If
-                End If
-            Next
-        End Sub
-    End Class
+    Private WithEvents TRender As New Timer With {.Enabled = False, .Interval = 10}
 
     Private _orbs As New List(Of Orb)
     Private _balls As New List(Of Ball)
-    Private _backcolor As Color = Color.Black
+
+    Private _UnclaimedPoints As Double = 0
 #End Region
 
 #Region "Properties"
+    <Localizable(False)>
+    <Bindable(False)>
+    <Browsable(True)>
+    <DefaultValue(1)>
+    <Category("IdleBallsArena")>
+    <Description("Indicates the current level of the game in progress.")>
+    Public Property Level As Integer = 1
+
     <Localizable(False)>
     <Bindable(False)>
     <Browsable(True)>
@@ -139,7 +35,7 @@ Public Class IdleBallsArena
     <DefaultValue(1)>
     <Category("IdleBallsArena")>
     <Description("Indicates how many orbs should be shown at the start of the game.")>
-    Public Property StartingBallCount As Integer = 2
+    Public Property StartingBallCount As Integer = 3
 
     <Localizable(False)>
     <Bindable(False)>
@@ -204,7 +100,7 @@ Public Class IdleBallsArena
         For Each o As Orb In _orbs
             Dim pn As New Pen(o.Color)
 
-            Dim rect As New Rectangle(o.CenterLocation.X - Orb.Radius, o.CenterLocation.Y - Orb.Radius, Orb.Radius * 2, Orb.Radius * 2)
+            Dim rect As New Rectangle(o.CenterLocation.X - o.Radius, o.CenterLocation.Y - o.Radius, o.Radius * 2, o.Radius * 2)
             e.Graphics.DrawEllipse(pn, rect)
             e.Graphics.FillEllipse(pn.Brush, rect)
 
@@ -214,7 +110,7 @@ Public Class IdleBallsArena
         For Each b As Ball In _balls
             Dim pn As New Pen(b.Color)
 
-            Dim rect As New Rectangle(b.CenterLocation.X - Ball.Radius, b.CenterLocation.Y - Ball.Radius, Ball.Radius * 2, Ball.Radius * 2)
+            Dim rect As New Rectangle(b.CenterLocation.X - b.Radius, b.CenterLocation.Y - b.Radius, b.Radius * 2, b.Radius * 2)
             e.Graphics.DrawEllipse(pn, rect)
             e.Graphics.FillEllipse(pn.Brush, rect)
         Next
@@ -230,7 +126,6 @@ Public Class IdleBallsArena
 #End Region
 
 #Region "Private Methods"
-
     Private Sub GenerateOrbs()
         _orbs = New List(Of Orb)
 
@@ -239,22 +134,24 @@ Public Class IdleBallsArena
         For I = 0 To StartingOrbCount - 1
             ' Flag which holds true whenever a new circle was found
             Dim newCircleFound As Boolean = False
+            Dim TryCount As Integer = 0
 
             ' Loop iteration which runs until we find a circle that doesn't intersect with the others
             While Not newCircleFound
-                Dim NewCenter As New Point(
-                    rand.Next(WallPadding + Orb.RequiredPadding, Width - WallPadding * 2 - Orb.RequiredPadding * 2),
-                    rand.Next(WallPadding + Orb.RequiredPadding, Height - WallPadding * 2 - Orb.RequiredPadding * 2)
+                Dim NewCenter As New Vector2D(
+                    rand.Next(WallPadding + Orb.DefaultRequiredPadding, Width - WallPadding * 2 - Orb.DefaultRequiredPadding * 2),
+                    rand.Next(WallPadding + Orb.DefaultRequiredPadding, Height - WallPadding * 2 - Orb.DefaultRequiredPadding * 2)
                 )
 
-                Dim p() As PointF = {
-                    New PointF(Single.NaN, Single.NaN),
-                    New PointF(Single.NaN, Single.NaN)
-                }
+                If TryCount >= 100 Then
+                    I = 0
+                    _orbs = New List(Of Orb)
+                Else
+                    TryCount += 1
+                End If
 
                 For Each o As Orb In _orbs
-
-                    If FindCircleCircleIntersections(o.CenterLocation, Orb.Radius + Orb.RequiredPadding * 2, NewCenter, Orb.Radius + Orb.RequiredPadding * 2, p) <> 0 Then
+                    If {CircleIntersectionPossibilities.Intersections_CirclesHaveIntersections, CircleIntersectionPossibilities.NoIntersections_CirclesAreTheSame}.Contains(FindCircleCircleIntersections(o.CenterLocation, o.Radius + o.RequiredPadding * 2, NewCenter, o.Radius + o.RequiredPadding * 2)) Then
                         ' Overlaps
                         Continue While
                     Else
@@ -263,12 +160,11 @@ Public Class IdleBallsArena
                     End If
                 Next
 
-                _orbs.Add(New Orb(Integer.MaxValue, NewCenter))
+                _orbs.Add(New Orb(100 ^ Level, NewCenter))
                 newCircleFound = True
             End While
         Next
     End Sub
-
     Private Sub GenerateBalls()
         _balls = New List(Of Ball)
 
@@ -280,13 +176,13 @@ Public Class IdleBallsArena
 
             ' Loop iteration which runs until we find a circle that doesn't intersect with the others
             While Not newCircleFound
-                Dim NewCenter As New Point(
-                    rand.Next(Ball.Radius, Width - Ball.Radius),
-                    rand.Next(Ball.Radius, Height - Ball.Radius)
+                Dim NewCenter As New Vector2D(
+                    rand.Next(Ball.DefaultRadius, Width - Ball.DefaultRadius),
+                    rand.Next(Ball.DefaultRadius, Height - Ball.DefaultRadius)
                 )
 
                 For Each o As Orb In _orbs
-                    If FindCircleCircleIntersections(o.CenterLocation, Orb.Radius, NewCenter, Ball.Radius) <> 0 Then
+                    If FindCircleCircleIntersections(o.CenterLocation, o.Radius, NewCenter, Ball.DefaultRadius) = CircleIntersectionPossibilities.Intersections_CirclesHaveIntersections Then
                         ' Overlaps
                         Continue While
                     Else
@@ -312,6 +208,7 @@ Public Class IdleBallsArena
     Public Sub StartNewGame()
         GenerateOrbs()
         GenerateBalls()
+        TRender.Start()
         Invalidate()
     End Sub
 #End Region
@@ -329,15 +226,27 @@ Public Class IdleBallsArena
     End Sub
 
     Private Sub TRender_Tick(sender As Object, e As EventArgs) Handles TRender.Tick
+        TRender.Enabled = False
+
         For Each b As Ball In _balls
             b.Move(Size)
-            b.CheckCollisions(_orbs)
+            _UnclaimedPoints += b.CheckCollisions(_orbs)
         Next
 
         If _orbs.Count = 0 Then
+            'MessageBox.Show(_UnclaimedPoints)
+
+            Level += 1
+            _balls.ForEach(Sub(b) b.Upgrade())
             GenerateOrbs()
         End If
 
         Invalidate()
+
+        TRender.Enabled = True
+    End Sub
+
+    Private Sub IdleBallsArena_MouseDown(sender As Object, e As MouseEventArgs) Handles Me.MouseDown
+        _UnclaimedPoints += New Ball(100 * Level, New Vector2D(e.Location.X, e.Location.Y), True).CheckCollisions(_orbs)
     End Sub
 End Class
