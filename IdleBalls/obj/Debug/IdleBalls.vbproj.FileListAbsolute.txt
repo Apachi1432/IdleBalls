@@ -1,0 +1,13 @@
+C:\Users\Joshua\AppData\Local\Temporary Projects\IdleBalls\bin\Debug\IdleBalls.exe.config
+C:\Users\Joshua\AppData\Local\Temporary Projects\IdleBalls\bin\Debug\IdleBalls.exe
+C:\Users\Joshua\AppData\Local\Temporary Projects\IdleBalls\bin\Debug\IdleBalls.pdb
+C:\Users\Joshua\AppData\Local\Temporary Projects\IdleBalls\bin\Debug\IdleBalls.xml
+C:\Users\Joshua\AppData\Local\Temporary Projects\IdleBalls\obj\Debug\IdleBalls.vbprojResolveAssemblyReference.cache
+C:\Users\Joshua\AppData\Local\Temporary Projects\IdleBalls\obj\Debug\IdleBalls.Form1.resources
+C:\Users\Joshua\AppData\Local\Temporary Projects\IdleBalls\obj\Debug\IdleBalls.Resources.resources
+C:\Users\Joshua\AppData\Local\Temporary Projects\IdleBalls\obj\Debug\IdleBalls.vbproj.GenerateResource.Cache
+C:\Users\Joshua\AppData\Local\Temporary Projects\IdleBalls\obj\Debug\IdleBalls.vbproj.CoreCompileInputs.cache
+C:\Users\Joshua\AppData\Local\Temporary Projects\IdleBalls\obj\Debug\IdleBalls.exe
+C:\Users\Joshua\AppData\Local\Temporary Projects\IdleBalls\obj\Debug\IdleBalls.xml
+C:\Users\Joshua\AppData\Local\Temporary Projects\IdleBalls\obj\Debug\IdleBalls.pdb
+C:\Users\Joshua\AppData\Local\Temporary Projects\IdleBalls\obj\Debug\IdleBalls.IdleBallsArena.resources
